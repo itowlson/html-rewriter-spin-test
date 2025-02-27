@@ -9,7 +9,6 @@ mod wit {
     });
 }
 
-/// A simple Spin HTTP component.
 #[http_component]
 async fn handle_html_rewriter_host(req: IncomingRequest, response_outparam: ResponseOutparam) {
     let headers = Fields::from_list(&[("content-type".to_owned(), "text/html".into())]).unwrap();
