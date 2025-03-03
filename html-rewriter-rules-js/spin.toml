@@ -6,13 +6,18 @@ version = "0.1.0"
 authors = ["itowlson <ivan.towlson@fermyon.com>"]
 description = ""
 
+[variables]
+upstream_host = { default = "https://developer.fermyon.com" }
+
 [[trigger.http]]
 route = "/..."
 component = "html-rewriter"
 
 [component.html-rewriter]
 source = "../html-rewriter-host/target/wasm32-wasip2/release/html_rewriter_host.wasm"
-allowed_outbound_hosts = ["https://developer.fermyon.com"]
+allowed_outbound_hosts = ["{{ upstream_host }}"]
+variables = { upstream_host = "{{ upstream_host }}" }
+dependencies_inherit_configuration = true
 [component.html-rewriter.dependencies]
 "fermyon:html-rewrite/rewriter" = { path = "dist/rrjs.wasm" }
 [component.html-rewriter.build]

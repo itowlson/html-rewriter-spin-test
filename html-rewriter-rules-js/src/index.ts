@@ -20,8 +20,8 @@ export class Rewriter extends RewriteRules {
                 let mangled = href[1] + "?something=BIBBLYBOBBLY";
                 actions.push({ tag: 'set-attribute', val: ["href", mangled] });
             }
-            actions.push({ tag: 'prepend-inner-content', val: ["🎉 ", 'text'] });
-            actions.push({ tag: 'append-inner-content', val: [" 🎉", 'text'] });
+            actions.push({ tag: 'prepend-inner-content', val: ["🐔 ", 'text'] });
+            actions.push({ tag: 'append-inner-content', val: [" 🐔", 'text'] });
         }
         return actions;
     }
