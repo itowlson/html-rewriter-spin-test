@@ -13,14 +13,17 @@ export class Rewriter extends RewriteRules {
     }
     
     transformSelector(selector: string, element: rr.Element): Array<rr.RewriteAction> {
+        let actions: Array<rr.RewriteAction> = [];
         if (selector === "a") {
             let href = element.attributes.find(e => e[0] == "href");
             if (href) {
                 let mangled = href[1] + "?something=BIBBLYBOBBLY";
-                return [{ tag: 'set-attribute', val: ["href", mangled] }];
+                actions.push({ tag: 'set-attribute', val: ["href", mangled] });
             }
+            actions.push({ tag: 'prepend-inner-content', val: ["🎉 ", 'text'] });
+            actions.push({ tag: 'append-inner-content', val: [" 🎉", 'text'] });
         }
-        return [];
+        return actions;
     }
 }
 

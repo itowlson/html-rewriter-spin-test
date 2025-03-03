@@ -57,7 +57,10 @@ impl lol_html::OutputSink for OutputSink {
 
 fn mangle_by_sel(selector: &str, e: &mut lol_html::html_content::Element) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let element = wit::fermyon::html_rewrite::rewriter::Element {
+        tag: e.tag_name(),
         attributes: e.attributes().iter().map(|a| (a.name(), a.value())).collect(),
+        can_have_content: e.can_have_content(),
+        is_self_closing: e.is_self_closing(),
     };
     let transformations = wit::fermyon::html_rewrite::rewriter::transform_selector(selector, &element);
     for transformation in &transformations {
@@ -69,6 +72,25 @@ fn mangle_by_sel(selector: &str, e: &mut lol_html::html_content::Element) -> Res
 fn apply(transformation: &wit::fermyon::html_rewrite::rewriter::RewriteAction, e: &mut lol_html::html_content::Element) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     match transformation {
         wit::fermyon::html_rewrite::rewriter::RewriteAction::SetAttribute((attr, value)) => e.set_attribute(attr, value)?,
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::SetTagName(name) => e.set_tag_name(name)?,
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::RemoveAttribute(attr) => e.remove_attribute(attr),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::SetInnerContent((content, ty)) => e.set_inner_content(content, ty.into()),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::PrependInnerContent((content, ty)) => e.prepend(content, ty.into()),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::AppendInnerContent((content, ty)) => e.append(content, ty.into()),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::RemoveElement => e.remove(),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::RemoveElementKeepContent => e.remove_and_keep_content(),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::ReplaceElement((content, ty)) => e.replace(content, ty.into()),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::After((content, ty)) => e.after(content, ty.into()),
+        wit::fermyon::html_rewrite::rewriter::RewriteAction::Before((content, ty)) => e.before(content, ty.into()),
     };
     Ok(())
+}
+
+impl From<&wit::fermyon::html_rewrite::rewriter::ContentType> for lol_html::html_content::ContentType {
+    fn from(value: &wit::fermyon::html_rewrite::rewriter::ContentType) -> Self {
+        match value {
+            wit::fermyon::html_rewrite::rewriter::ContentType::Html => lol_html::html_content::ContentType::Html,
+            wit::fermyon::html_rewrite::rewriter::ContentType::Text => lol_html::html_content::ContentType::Text,
+        }
+    }
 }

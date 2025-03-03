@@ -4,11 +4,27 @@ interface rewriter {
     selectors: func() -> list<string>;
     transform-selector: func(selector: string, element: element) -> list<rewrite-action>;
     record element {
-        // get-attribute: func(attr: string) -> option<string>;
+        tag: string,
         attributes: list<tuple<string, string>>,
+        can-have-content: bool,
+        is-self-closing: bool,
     }
     variant rewrite-action {
+        set-tag-name(string),
         set-attribute(tuple<string, string>),
+        remove-attribute(string),
+        set-inner-content(tuple<string, content-type>),
+        prepend-inner-content(tuple<string, content-type>),
+        append-inner-content(tuple<string, content-type>),
+        remove-element,
+        remove-element-keep-content,
+        replace-element(tuple<string, content-type>),
+        after(tuple<string, content-type>),
+        before(tuple<string, content-type>),
+    }
+    enum content-type {
+        html,
+        text,
     }
 }
 
