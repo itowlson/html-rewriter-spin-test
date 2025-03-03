@@ -1,0 +1,19 @@
+{
+  "name": "html-rewriter-rules-js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "bindings": "jco types ./wit -o bindings -n rewrite-rules",
+    "build": "tsc && mkdirp dist && jco componentize js/index.js --wit ./wit --world-name rewrite-rules --out dist/rrjs.wasm --disable all",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@bytecodealliance/componentize-js": "^0.17.0",
+    "@bytecodealliance/jco": "^1.10.2",
+    "mkdirp": "^3.0.1",
+    "typescript": "^5.8.2"
+  }
+}

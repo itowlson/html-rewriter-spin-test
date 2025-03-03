@@ -1,0 +1,21 @@
+package fermyon:html-rewrite;
+
+interface rewriter {
+    selectors: func() -> list<string>;
+    transform-selector: func(selector: string, element: element) -> list<rewrite-action>;
+    record element {
+        // get-attribute: func(attr: string) -> option<string>;
+        attributes: list<tuple<string, string>>,
+    }
+    variant rewrite-action {
+        set-attribute(tuple<string, string>),
+    }
+}
+
+world rewrite-host {
+    import rewriter;
+}
+
+world rewrite-rules {
+    export rewriter;
+}
