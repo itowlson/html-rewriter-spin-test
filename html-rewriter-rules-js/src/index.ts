@@ -2,29 +2,49 @@
 
 import { rewriter as rr } from '../bindings/rewrite-rules';
 
-export abstract class RewriteRules {
-    abstract selectors(): Array<string>;
-    abstract transformSelector(selector: string, element: rr.Element): Array<rr.RewriteAction>;
+type TransformFunc = (e: rr.Element) => rr.RewriteAction | null;
+
+export class RewriterRsrc {
+    rules: { [key: string]: Array<TransformFunc> }
+
+    constructor() {
+        this.rules = {};
+    }
+
+    on(selector: string, action: TransformFunc): RewriterRsrc {
+        if (this.rules[selector]) {
+            this.rules[selector].push(action);
+        } else {
+            this.rules[selector] = [action];
+        }
+
+        return this;
+    }
+
+    selectors(): Array<string> {
+        return Object.keys(this.rules);
+    }
+
+    transformSelector(selector: string, element: rr.Element): Array<rr.RewriteAction> {
+        let transformationFuncs = this.rules[selector] || [];
+        return transformationFuncs.map(f => f(element)).filter(a => a !== null);
+    }
 }
 
-export class Rewriter extends RewriteRules {
-    selectors(): Array<string> {
-        return ["a"];
-    }
-    
-    transformSelector(selector: string, element: rr.Element): Array<rr.RewriteAction> {
-        let actions: Array<rr.RewriteAction> = [];
-        if (selector === "a") {
-            let href = element.attributes.find(e => e[0] == "href");
+export function getRewriter(): RewriterRsrc {
+    return new RewriterRsrc()
+        .on("spork", (_) => ({ tag: 'append-inner-content', val: [" 🐔", 'text'] }))
+        .on("a", (e) => {
+            let href = e.attributes.find(e => e[0] == "href");
             if (href) {
                 let mangled = href[1] + "?something=BIBBLYBOBBLY";
-                actions.push({ tag: 'set-attribute', val: ["href", mangled] });
+                return { tag: 'set-attribute', val: ["href", mangled] };
+            } else {
+                return null;
             }
-            actions.push({ tag: 'prepend-inner-content', val: ["🐔 ", 'text'] });
-            actions.push({ tag: 'append-inner-content', val: [" 🐔", 'text'] });
-        }
-        return actions;
-    }
+        })
+        .on("a", (_) => ({ tag: 'prepend-inner-content', val: ["🐔 ", 'text'] }))
+        .on("a", (_) => ({ tag: 'append-inner-content', val: [" 🐔", 'text'] }));
 }
 
-export const rewriter = new Rewriter();
+export const rewriter = { getRewriter, RewriterRsrc };

@@ -1,6 +1,9 @@
 /** @module Interface fermyon:html-rewrite/rewriter **/
-export function selectors(): Array<string>;
-export function transformSelector(selector: string, element: Element): Array<RewriteAction>;
+export function rewriter(): RewriterRsrc;
+/**
+ * selectors: func() -> list<string>;
+ * transform-selector: func(selector: string, element: element) -> list<rewrite-action>;
+ */
 export interface Element {
   tag: string,
   attributes: Array<[string, string]>,
@@ -57,4 +60,13 @@ export interface RewriteActionAfter {
 export interface RewriteActionBefore {
   tag: 'before',
   val: [string, ContentType],
+}
+
+export class RewriterRsrc {
+  /**
+   * This type does not have a public constructor.
+   */
+  private constructor();
+  selectors(): Array<string>;
+  transformSelector(selector: string, element: Element): Array<RewriteAction>;
 }

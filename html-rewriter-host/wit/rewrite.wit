@@ -1,8 +1,8 @@
 package fermyon:html-rewrite;
 
 interface rewriter {
-    selectors: func() -> list<string>;
-    transform-selector: func(selector: string, element: element) -> list<rewrite-action>;
+    // selectors: func() -> list<string>;
+    // transform-selector: func(selector: string, element: element) -> list<rewrite-action>;
     record element {
         tag: string,
         attributes: list<tuple<string, string>>,
@@ -25,6 +25,13 @@ interface rewriter {
     enum content-type {
         html,
         text,
+    }
+
+    get-rewriter: func() -> rewriter-rsrc;
+
+    resource rewriter-rsrc {
+        selectors: func() -> list<string>;
+        transform-selector: func(selector: string, element: element) -> list<rewrite-action>;
     }
 }
 

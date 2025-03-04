@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use futures::{SinkExt, StreamExt};
 use lol_html::element;
 use spin_sdk::http::{IncomingRequest, IncomingResponse, OutgoingResponse, Request, ResponseOutparam};
@@ -43,16 +45,18 @@ async fn handle_html_rewriter_host(req: IncomingRequest, response_outparam: Resp
     };
 
     let mut settings = lol_html::Settings::new();
-    for selector in wit::fermyon::html_rewrite::rewriter::selectors() {
+    let rewriter = Arc::new(wit::fermyon::html_rewrite::rewriter::get_rewriter());
+    let selectors = rewriter.selectors();
+    for selector in selectors {
         let selector2 = selector.clone();
-        settings.element_content_handlers.push(element!(&selector, move |e| mangle_by_sel(&selector2, e)));
+        let rewriter2 = rewriter.clone();
+        settings.element_content_handlers.push(element!(&selector, move |e| mangle_by_sel(&rewriter2, &selector2, e)));
     }
     let mut rewriter = lol_html::HtmlRewriter::new(settings, output_sink);
 
     let mut stm = upstream_resp.take_body_stream();
     while let Some(chunk) = stm.next().await {
         let chunk = chunk.unwrap();
-        // println!("processing chunk: {}", String::from_utf8_lossy(&chunk));
         rewriter.write(&chunk).unwrap();
     }
 
@@ -64,20 +68,19 @@ struct OutputSink {
 
 impl lol_html::OutputSink for OutputSink {
     fn handle_chunk(&mut self, chunk: &[u8]) {
-        // println!("    result chunk: {}", String::from_utf8_lossy(&chunk));
         let future = self.sink.send(chunk.to_vec());
         spin_executor::run(future).unwrap();
     }
 }
 
-fn mangle_by_sel(selector: &str, e: &mut lol_html::html_content::Element) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+fn mangle_by_sel(rewriter: &wit::fermyon::html_rewrite::rewriter::RewriterRsrc, selector: &str, e: &mut lol_html::html_content::Element) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let element = wit::fermyon::html_rewrite::rewriter::Element {
         tag: e.tag_name(),
         attributes: e.attributes().iter().map(|a| (a.name(), a.value())).collect(),
         can_have_content: e.can_have_content(),
         is_self_closing: e.is_self_closing(),
     };
-    let transformations = wit::fermyon::html_rewrite::rewriter::transform_selector(selector, &element);
+    let transformations = rewriter.transform_selector(selector, &element);
     for transformation in &transformations {
         apply(transformation, e)?;
     }

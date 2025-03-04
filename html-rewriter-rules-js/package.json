@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "bindings": "jco types ./wit -o bindings -n rewrite-rules",
-    "build": "tsc && mkdirp dist && jco componentize js/index.js --wit ./wit --world-name rewrite-rules --out dist/rrjs.wasm --disable all",
+    "build": "tsc && mkdirp dist && jco componentize js/index.js --wit ./wit --world-name rewrite-rules --out dist/rrjs.wasm",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
