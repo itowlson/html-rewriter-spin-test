@@ -73,7 +73,7 @@ impl lol_html::OutputSink for OutputSink {
     }
 }
 
-fn mangle_by_sel(rewriter: &wit::fermyon::html_rewrite::rewriter::RewriterRsrc, selector: &str, e: &mut lol_html::html_content::Element) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+fn mangle_by_sel(rewriter: &wit::fermyon::html_rewrite::rewriter::Rewriter, selector: &str, e: &mut lol_html::html_content::Element) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let element = wit::fermyon::html_rewrite::rewriter::Element {
         tag: e.tag_name(),
         attributes: e.attributes().iter().map(|a| (a.name(), a.value())).collect(),

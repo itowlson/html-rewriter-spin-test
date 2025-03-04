@@ -4,14 +4,14 @@ import { rewriter as rr } from '../bindings/rewrite-rules';
 
 type TransformFunc = (e: rr.Element) => rr.RewriteAction | null;
 
-export class RewriterRsrc {
+export class Rewriter {
     rules: { [key: string]: Array<TransformFunc> }
 
     constructor() {
         this.rules = {};
     }
 
-    on(selector: string, action: TransformFunc): RewriterRsrc {
+    on(selector: string, action: TransformFunc): Rewriter {
         if (this.rules[selector]) {
             this.rules[selector].push(action);
         } else {
@@ -31,8 +31,8 @@ export class RewriterRsrc {
     }
 }
 
-export function getRewriter(): RewriterRsrc {
-    return new RewriterRsrc()
+export function getRewriter(): Rewriter {
+    return new Rewriter()
         .on("spork", (_) => ({ tag: 'append-inner-content', val: [" 🐔", 'text'] }))
         .on("a", (e) => {
             let href = e.attributes.find(e => e[0] == "href");
@@ -47,4 +47,4 @@ export function getRewriter(): RewriterRsrc {
         .on("a", (_) => ({ tag: 'append-inner-content', val: [" 🐔", 'text'] }));
 }
 
-export const rewriter = { getRewriter, RewriterRsrc };
+export const rewriter = { getRewriter, Rewriter };
