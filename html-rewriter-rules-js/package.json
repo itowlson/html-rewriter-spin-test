@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "bindings": "jco types ./wit -o bindings -n rewrite-rules",
-    "build": "tsc && mkdirp dist && jco componentize js/index.js --wit ./wit --world-name rewrite-rules --out dist/rrjs.wasm",
+    "build": "mkdirp build && esbuild src/index.ts --bundle --platform=neutral --outfile=build/rrjs.js && mkdirp dist && jco componentize build/rrjs.js --wit ./wit --world-name rewrite-rules --out dist/rrjs.wasm",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -13,6 +13,7 @@
   "devDependencies": {
     "@bytecodealliance/componentize-js": "^0.17.0",
     "@bytecodealliance/jco": "^1.10.2",
+    "esbuild": "^0.25.0",
     "mkdirp": "^3.0.1",
     "typescript": "^5.8.2"
   }
